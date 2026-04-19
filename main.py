@@ -43,6 +43,7 @@ from src.ingestion.market_data import fetch_all
 from src.macro.analyzer import analyze as analyze_macro
 from src.forecasting.forecaster import forecast_macro
 from src.ingestion.bcch_data import fetch_all_bcch, extract_macro_values
+from src.ingestion.mindicador_data import fetch_mindicador, extract_macro_values_mindicador
 from src.preprocessing.cleaner import clean_clients, add_macro_features, get_feature_columns
 from src.credit_risk.model import CreditRiskModel
 from src.credit_risk.explainer import CreditRiskExplainer, format_shap_for_prompt
@@ -114,12 +115,13 @@ def run_pipeline(scenario: str = "normal", target_client_id: int | None = None, 
     # ── 3. FORECASTING MACROECONÓMICO ────────────────────────────────────────
     print_section("3️⃣  FORECASTING MACROECONÓMICO")
 
-    # Intentar datos reales del Banco Central de Chile
+    # 1º — Banco Central de Chile (si hay credenciales)
     print("  Intentando API Banco Central de Chile...")
     bcch_raw = fetch_all_bcch()
     bcch_values = extract_macro_values(bcch_raw) if bcch_raw else None
+
     if bcch_values:
-        print(f"  BCCh conectado — fuente: REAL")
+        print("  BCCh conectado — fuente: REAL")
         if "tpm_current" in bcch_values:
             print(f"  TPM actual (BCCh):   {bcch_values['tpm_current']:.2f}%")
         if "uf_value" in bcch_values:
@@ -127,8 +129,20 @@ def run_pipeline(scenario: str = "normal", target_client_id: int | None = None, 
         if "usdclp_official" in bcch_values:
             print(f"  USD/CLP obs (BCCh):  ${bcch_values['usdclp_official']:,.2f}")
     else:
-        print("  BCCh no disponible — usando historial aproximado")
-        print("  (configura BCCH_USER y BCCH_PASS para datos reales)")
+        # 2º — mindicador.cl (gratuito, sin credenciales)
+        print("  BCCh no disponible — intentando mindicador.cl...")
+        mini_raw = fetch_mindicador()
+        if mini_raw:
+            bcch_values = extract_macro_values_mindicador(mini_raw)
+            print("  mindicador.cl conectado — fuente: PÚBLICO")
+            if "tpm_current" in bcch_values:
+                print(f"  TPM actual:          {bcch_values['tpm_current']:.2f}%")
+            if "uf_value" in bcch_values:
+                print(f"  UF actual:           ${bcch_values['uf_value']:,.2f}")
+            if "usdclp_official" in bcch_values:
+                print(f"  USD/CLP:             ${bcch_values['usdclp_official']:,.2f}")
+        else:
+            print("  mindicador.cl no disponible — usando historial aproximado")
 
     scenario_cfg = config["scenarios"][scenario]
     scenario_deltas = {

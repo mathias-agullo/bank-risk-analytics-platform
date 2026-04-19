@@ -1,6 +1,7 @@
 # Credenciales — NUNCA subir al repositorio
 .env
 .env.*
+!.env.example
 config/groq.key
 config/bcch_credentials.txt
 config/*.key

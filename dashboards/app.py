@@ -34,6 +34,40 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# ── Groq API popup ────────────────────────────────────────────────────────────
+import os as _os
+if "groq_banner_dismissed" not in st.session_state:
+    st.session_state.groq_banner_dismissed = False
+
+if not _os.environ.get("GROQ_API_KEY") and not st.session_state.groq_banner_dismissed:
+    with st.container():
+        st.markdown("""
+        <div style='background:#1e293b; border:1px solid #f59e0b; border-radius:12px;
+                    padding:20px 24px; margin-bottom:20px;'>
+            <div style='display:flex; align-items:center; gap:10px; margin-bottom:12px;'>
+                <span style='font-size:1.4rem'>⚠️</span>
+                <span style='font-size:1rem; font-weight:700; color:#fbbf24;'>
+                    No se detectó API key de Groq
+                </span>
+            </div>
+            <div style='color:#cbd5e1; font-size:0.88rem; line-height:1.7;'>
+                Los reportes narrativos con IA requieren una key gratuita de Groq.<br>
+                Sin ella, el sistema usa reportes de plantilla (funciona igual, sin IA generativa).<br><br>
+                <b style='color:#e2e8f0;'>Cómo obtener tu key gratis (2 minutos):</b><br>
+                &nbsp;&nbsp;1. Ve a <b>console.groq.com</b> → crear cuenta gratis<br>
+                &nbsp;&nbsp;2. API Keys → <b>Create API Key</b><br>
+                &nbsp;&nbsp;3. Crea un archivo <code style='background:#0f172a; padding:1px 5px;
+                   border-radius:4px;'>.env</code> en la raíz del proyecto con:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<code style='background:#0f172a; padding:2px 8px;
+                   border-radius:4px; color:#34d399;'>GROQ_API_KEY=gsk_xxxxxxxxxxxx</code><br>
+                &nbsp;&nbsp;4. Reinicia la app
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Entendido, usar modo plantilla por ahora", key="dismiss_groq"):
+            st.session_state.groq_banner_dismissed = True
+            st.rerun()
+
 # ── CSS global ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
