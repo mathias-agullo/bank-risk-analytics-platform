@@ -1,0 +1,77 @@
+market:
+  tickers:
+    ipsa: "IPSA.SN"       # Índice IPSA (Santiago Exchange)
+    sp500: "^GSPC"        # S&P 500
+    usdclp: "USDCLP=X"   # Dólar / Peso chileno
+    copper: "HG=F"        # Cobre (futuros, USD/libra)
+  lookback_days: 365
+
+credit_risk:
+  threshold_high: 0.60
+  threshold_medium: 0.30
+  test_size: 0.2
+  random_state: 42
+
+fraud:
+  contamination: 0.05
+  random_state: 42
+
+forecasting:
+  horizon_months: 6
+  confidence_interval: 0.95
+
+scenarios:
+  normal:
+    label: "Escenario Base"
+    # Sin shocks — condiciones actuales del mercado
+    unemployment_delta: 0.00
+    rate_delta: 0.00
+    usdclp_shock: 0.00
+    copper_shock: 0.00
+    # Impactos micro (sobre variables individuales de clientes)
+    income_drop: 0.00          # caída de ingresos reales
+    debt_ratio_increase: 0.00  # encarecimiento de deudas
+    layoff_prob: 0.00          # probabilidad de perder empleo
+    payment_stress: 0.00       # probabilidad de atrasos adicionales
+    savings_drain: 0.00        # erosión del ahorro
+
+  crisis:
+    label: "Crisis Económica"
+    # Calibrado en crisis 2020 (COVID) y 1999 Chile
+    unemployment_delta: 2.50   # +2.5pp desempleo (8.5 → 11%)
+    rate_delta: 1.50
+    usdclp_shock: 0.20
+    copper_shock: -0.25
+    # Impactos micro realistas
+    income_drop: 0.18          # ingresos reales caen ~18% (similar 2020)
+    debt_ratio_increase: 0.12  # deudas se encarecen, ratio sube ~12pp
+    layoff_prob: 0.08          # 8% de empleados pierden trabajo
+    payment_stress: 0.15       # 15% prob de atraso adicional por cliente
+    savings_drain: 0.35        # ahorro cae 35%
+
+  rate_hike:
+    label: "Alza de Tasas"
+    # Calibrado en ciclo 2022 BCCh (TPM subió de 0.5% a 11.25%)
+    unemployment_delta: 0.50
+    rate_delta: 3.00
+    usdclp_shock: 0.05
+    copper_shock: -0.05
+    # Impactos micro realistas
+    income_drop: 0.04          # ingreso real cae levemente por inflación
+    debt_ratio_increase: 0.08  # créditos variables se encarecen ~8pp
+    layoff_prob: 0.02          # poco desempleo, pero hay algo
+    payment_stress: 0.07       # 7% prob de atraso por costo financiero
+    savings_drain: 0.15        # ahorro se reduce para cubrir cuotas
+
+ai:
+  # Modelos Ollama recomendados:
+  #   llama3.2:3b   → muy rapido, ~2GB, bueno para produccion
+  #   mistral:7b    → mejor calidad, ~4GB
+  #   llama3.1:8b   → mejor balance calidad/velocidad, ~5GB
+  model: "llama3.2:3b"
+  ollama_url: "http://localhost:11434"
+
+data:
+  n_clients: 1000
+  n_transactions: 5000
+  random_state: 42

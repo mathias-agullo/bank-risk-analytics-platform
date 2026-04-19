@@ -1,0 +1,32 @@
+# Credenciales — NUNCA subir al repositorio
+.env
+.env.*
+config/groq.key
+config/bcch_credentials.txt
+config/*.key
+config/*.secret
+config/*.txt
+
+# Datos y modelos entrenados
+outputs/
+data/raw/
+data/processed/
+*.pkl
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# IDEs
+.vscode/
+.idea/
+*.swp
